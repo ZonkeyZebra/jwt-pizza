@@ -8,14 +8,14 @@ As part of `Deliverable ⓵ Development deployment: JWT Pizza`, start up the app
 | --------------------------------------------------- | ------------------ | ----------------- | ------------ |
 | View home page                                      |       home.jsx     |      none         |     none     |
 | Register new user<br/>(t@jwt.com, pw: test)         |     register.jsx   | [POST] /api/auth  |   `INSERT INTO user (name, email, password) VALUES (?, ?, ?)` <br/>`INSERT INTO userRole (userId, role, objectId) VALUES (?, ?, ?)`           |
-| Login new user<br/>(t@jwt.com, pw: test)            |                    |                   |              |
+| Login new user<br/>(t@jwt.com, pw: test)            |     login.jsx      | [PUT] /api/auth   |  `SELECT * FROM user WHERE email=?` <br/> `SELECT * FROM userRole WHERE userId=?`          |
 | Order pizza                                         |                    |                   |              |
 | Verify pizza                                        |                    |                   |              |
 | View profile page                                   |                    |                   |              |
 | View franchise<br/>(as diner)                       |                    |                   |              |
-| Logout                                              |                    |                   |              |
-| View About page                                     |                    |                   |              |
-| View History page                                   |                    |                   |              |
+| Logout                                              |   logout.jsx       |                   |              |
+| View About page                                     |    about.jsx       |                   |              |
+| View History page                                   |    history.jsx     |                   |              |
 | Login as franchisee<br/>(f@jwt.com, pw: franchisee) |                    |                   |              |
 | View franchise<br/>(as franchisee)                  |                    |                   |              |
 | Create a store                                      |                    |                   |              |
