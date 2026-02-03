@@ -129,7 +129,7 @@ test('purchase with login', async ({ page }) => {
 });
 
 test('visit about page', async ({ page }) => {
-    await page.goto('http://localhost:5173/');
+    await page.goto('/');
     await page.getByRole('link', { name: 'About' }).click();
     await expect(page.getByRole('main')).toContainText('The secret sauce');
     await expect(page.getByRole('list')).toMatchAriaSnapshot(`
@@ -147,7 +147,7 @@ test('visit about page', async ({ page }) => {
 });
 
 test('not found page', async ({ page }) => {
-    await page.goto('http://localhost:5173/not-found');
+    await page.goto('/not-found');
     await expect(page.getByRole('heading')).toContainText('Oops');
     await expect(page.getByRole('main')).toContainText('It looks like we have dropped a pizza on the floor. Please try another page.');
 });

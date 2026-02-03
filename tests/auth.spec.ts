@@ -7,7 +7,7 @@ test('home page', async ({ page }) => {
 });
 
 test('get to login', async ({ page }) => {
-  await page.goto('http://localhost:5173/');
+  await page.goto('/');
   await page.getByRole('link', { name: 'Login' }).click();
   await expect(page.getByText('Welcome back')).toBeVisible();
   await expect(page.getByRole('heading')).toContainText('Welcome back');
@@ -27,7 +27,7 @@ test('get to login', async ({ page }) => {
 });
 
 test('register', async ({ page }) => {
-  await page.goto('http://localhost:5173/');
+  await page.goto('/');
   await page.getByRole('link', { name: 'Register' }).click();
   await page.getByRole('textbox', { name: 'Full name' }).click();
   await page.getByRole('textbox', { name: 'Full name' }).fill('newTest');
@@ -50,7 +50,7 @@ test('register', async ({ page }) => {
 });
 
 test('login as admin', async ({ page }) => {
-  await page.goto('http://localhost:5173/');
+  await page.goto('/');
   await page.getByRole('link', { name: 'Login' }).click();
   await page.getByRole('textbox', { name: 'Email address' }).click();
   await page.getByRole('textbox', { name: 'Email address' }).click();
