@@ -127,3 +127,27 @@ test('purchase with login', async ({ page }) => {
     // Check balance
     await expect(page.getByText('0.008')).toBeVisible();
 });
+
+test('visit about page', async ({ page }) => {
+    await page.goto('http://localhost:5173/');
+    await page.getByRole('link', { name: 'About' }).click();
+    await expect(page.getByRole('main')).toContainText('The secret sauce');
+    await expect(page.getByRole('list')).toMatchAriaSnapshot(`
+    - list:
+      - listitem:
+        - link "home":
+          - /url: /
+          - img
+          - text: ""
+      - listitem:
+        - img
+        - link "about":
+          - /url: /about
+    `);
+});
+
+test('not found page', async ({ page }) => {
+    await page.goto('http://localhost:5173/not-found');
+    await expect(page.getByRole('heading')).toContainText('Oops');
+    await expect(page.getByRole('main')).toContainText('It looks like we have dropped a pizza on the floor. Please try another page.');
+});
