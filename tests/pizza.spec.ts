@@ -195,3 +195,22 @@ test('view history page', async ({ page }) => {
     - paragraph: It gained popularity in cities like New York and Chicago, where pizzerias started popping up. Today, pizza is enjoyed worldwide and comes in countless variations and flavors. However, the classic Neapolitan pizza is still a favorite among many pizza enthusiasts. This is especially true if it comes from JWT Pizza!
     `);
 });
+
+test('admin diner dashboard', async ({ page }) => {
+    await initWithAdmin(page);
+    await page.getByRole('link', { name: 'Login' }).click();
+    await page.getByRole('textbox', { name: 'Email address' }).fill('a@jwt.com');
+    await page.getByRole('textbox', { name: 'Password' }).fill('admin');
+    await page.getByRole('button', { name: 'Login' }).click();
+
+    await page.getByRole('link', { name: 'Franchise' }).click();
+    await expect(page.getByRole('list')).toContainText('franchise-dashboard');
+    await expect(page.locator('thead')).toContainText('Franchise Fee');
+    await expect(page.getByRole('main')).toContainText('So you want a piece of the pie?');
+    await expect(page.getByRole('main')).toContainText('Unleash Your Potential');
+
+    await page.getByRole('link', { name: 'AU' }).click();
+    await expect(page.getByRole('list')).toContainText('diner-dashboard');
+    await expect(page.getByRole('main')).toContainText('How have you lived this long without having a pizza? Buy one now!');
+    await expect(page.getByRole('heading')).toContainText('Your pizza kitchen');
+});
