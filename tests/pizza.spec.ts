@@ -216,9 +216,80 @@ async function initFranchisee(page: Page) {
         await route.fulfill({ json: loggedInUser });
     });
 
+    // {
+    //     method: 'POST',
+    //         path: '/api/franchise',
+    //             requiresAuth: true,
+    //                 description: 'Create a new franchise',
+    //                     example: `curl -X POST localhost:3000/api/franchise -H 'Content-Type: application/json' -H 'Authorization: Bearer tttttt' -d '{"name": "pizzaPocket", "admins": [{"email": "f@jwt.com"}]}'`,
+    //                         response: { name: 'pizzaPocket', admins: [{ email: 'f@jwt.com', id: 4, name: 'pizza franchisee' }], id: 1 },
+    // },
+    // {
+    //     method: 'DELETE',
+    //         path: '/api/franchise/:franchiseId',
+    //             requiresAuth: true,
+    //                 description: `Delete a franchise`,
+    //                     example: `curl -X DELETE localhost:3000/api/franchise/1 -H 'Authorization: Bearer tttttt'`,
+    //                         response: { message: 'franchise deleted' },
+    // },
+
     await page.route(/\/api\/franchise.*/, async (route) => {
         const method = route.request().method();
         const url = route.request().url();
+
+        // create franchise
+        if (method === 'POST' && /\/api\/franchise$/.test(url)) {
+            const body = route.request().postDataJSON();
+
+            const newFranchise = {
+                id: nextStoreId++,
+                name: body.name,
+                admins: [
+                    {
+                        id: 3,
+                        name: 'pizza franchisee',
+                        email: body.admins?.[0]?.email,
+                    },
+                ],
+                stores: [],
+            };
+
+            franchises.push(newFranchise);
+
+            return route.fulfill({
+                status: 200,
+                json: newFranchise,
+            });
+        }
+
+        // delete franchise
+        if (method === 'DELETE' && /\/api\/franchise\/\d+$/.test(url)) {
+            const match = url.match(/franchise\/(\d+)$/);
+            const franchiseId = Number(match?.[1]);
+
+            const franchise = franchises.find(f => f.id === franchiseId);
+
+            if (!franchise) {
+                return route.fulfill({ status: 404 });
+            }
+
+            const isOwner =
+                franchise.admins.some(a => String(a.id) === loggedInUser?.id);
+
+            const isAdmin =
+                loggedInUser?.roles?.some(r => r.role === Role.Admin);
+
+            if (!isOwner && !isAdmin) {
+                return route.fulfill({ status: 403 });
+            }
+
+            franchises.filter(f => f.id !== franchiseId);
+
+            return route.fulfill({
+                status: 200,
+                json: { message: 'franchise deleted' },
+            });
+        }
 
         // get all franchises
         if (method === 'GET' && /\/api\/franchise(\?.*)?$/.test(url)) {
@@ -451,4 +522,15 @@ test('add or remove franchise', async ({ page }) => {
     await page.getByRole('button', { name: 'Login' }).click();
     await page.waitForLoadState('networkidle');
     await page.getByRole('link', { name: 'Admin' }).click();
+
+    await page.getByRole('button', { name: 'Add Franchise' }).click();
+    await page.getByRole('textbox', { name: 'franchise name' }).click();
+    await page.getByRole('textbox', { name: 'franchise name' }).fill('new');
+    await page.getByRole('textbox', { name: 'franchisee admin email' }).click();
+    await page.getByRole('textbox', { name: 'franchisee admin email' }).fill('f@jwt.com');
+    await page.getByRole('button', { name: 'Create' }).click();
+
+    await page.locator('tbody:nth-child(4) > .border-neutral-500 > .px-6 > .px-2').click();
+    await expect(page.getByRole('heading')).toContainText('Sorry to see you go');
+    await page.getByRole('button', { name: 'Close' }).click();
 });
