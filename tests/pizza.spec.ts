@@ -393,6 +393,8 @@ test('admin diner dashboard', async ({ page }) => {
     await page.getByRole('textbox', { name: 'Password' }).fill('admin');
     await page.getByRole('button', { name: 'Login' }).click();
 
+    await page.waitForLoadState('networkidle');
+
     await page.getByRole('link', { name: 'Franchise' }).click();
     await expect(page.getByRole('list')).toContainText('franchise-dashboard');
     await expect(page.locator('thead')).toContainText('Franchise Fee');
