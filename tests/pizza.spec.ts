@@ -442,3 +442,13 @@ test('logout', async ({ page }) => {
       - /url: /register
     `);
 });
+
+test('add or remove franchise', async ({ page }) => {
+    await initFranchisee(page);
+    await page.getByRole('link', { name: 'Login' }).click();
+    await page.getByRole('textbox', { name: 'Email address' }).fill('f@jwt.com');
+    await page.getByRole('textbox', { name: 'Password' }).fill('franchisee');
+    await page.getByRole('button', { name: 'Login' }).click();
+    await page.waitForLoadState('networkidle');
+    await page.getByRole('link', { name: 'Admin' }).click();
+});
