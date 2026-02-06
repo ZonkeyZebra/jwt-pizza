@@ -7,21 +7,64 @@ async function basicInit(page: Page) {
     const validUsers: Record<string, User> = { 'd@jwt.com': { id: '3', name: 'Kai Chen', email: 'd@jwt.com', password: 'a', roles: [{ role: Role.Diner }] } };
 
     // Authorize login for the given user
+    // await page.route('*/**/api/auth', async (route) => {
+    //     const loginReq = route.request().postDataJSON();
+    //     const user = validUsers[loginReq.email];
+    //     if (!user || user.password !== loginReq.password) {
+    //         await route.fulfill({ status: 401, json: { error: 'Unauthorized' } });
+    //         return;
+    //     }
+    //     loggedInUser = validUsers[loginReq.email];
+    //     const loginRes = {
+    //         user: loggedInUser,
+    //         token: 'abcdef',
+    //     };
+    //     expect(route.request().method()).toBe('PUT');
+    //     await route.fulfill({ json: loginRes });
+    // });
+    // Authorize login + logout
     await page.route('*/**/api/auth', async (route) => {
-        const loginReq = route.request().postDataJSON();
-        const user = validUsers[loginReq.email];
-        if (!user || user.password !== loginReq.password) {
-            await route.fulfill({ status: 401, json: { error: 'Unauthorized' } });
-            return;
+        const method = route.request().method();
+
+        // -----------------
+        // LOGIN
+        // -----------------
+        if (method === 'PUT') {
+            const loginReq = route.request().postDataJSON();
+            const user = validUsers[loginReq.email];
+
+            if (!user || user.password !== loginReq.password) {
+                return route.fulfill({
+                    status: 401,
+                    json: { error: 'Unauthorized' },
+                });
+            }
+
+            loggedInUser = user;
+
+            const loginRes = {
+                user: loggedInUser,
+                token: 'abcdef',
+            };
+
+            return route.fulfill({ json: loginRes });
         }
-        loggedInUser = validUsers[loginReq.email];
-        const loginRes = {
-            user: loggedInUser,
-            token: 'abcdef',
-        };
-        expect(route.request().method()).toBe('PUT');
-        await route.fulfill({ json: loginRes });
+
+        // -----------------
+        // LOGOUT
+        // -----------------
+        if (method === 'DELETE') {
+            loggedInUser = undefined;
+
+            return route.fulfill({
+                status: 200,
+                json: { message: 'logged out' },
+            });
+        }
+
+        return route.fulfill({ status: 404 });
     });
+
 
     // Return the currently logged in user
     await page.route('*/**/api/user/me', async (route) => {
@@ -377,4 +420,23 @@ test('create store and delete store', async ({ page }) => {
     await page.getByRole('row', { name: 'Lehi ₿ Close' }).getByRole('button').click();
     await expect(page.getByRole('heading')).toContainText('Sorry to see you go');
     await page.getByRole('button', { name: 'Close' }).click();
+});
+
+test('logout', async ({ page }) => {
+    await basicInit(page);
+    await page.getByRole('link', { name: 'Login' }).click();
+    await page.getByRole('textbox', { name: 'Email address' }).fill('d@jwt.com');
+    await page.getByRole('textbox', { name: 'Password' }).fill('a');
+    await page.getByRole('button', { name: 'Login' }).click();
+    await page.getByRole('link', { name: 'Logout' }).click();
+    await expect(page.locator('#navbar-dark')).toMatchAriaSnapshot(`
+    - link "Order":
+      - /url: /menu
+    - link "Franchise":
+      - /url: /franchise-dashboard
+    - link "Login":
+      - /url: /login
+    - link "Register":
+      - /url: /register
+    `);
 });
