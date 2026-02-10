@@ -216,23 +216,6 @@ async function initFranchisee(page: Page) {
         await route.fulfill({ json: loggedInUser });
     });
 
-    // {
-    //     method: 'POST',
-    //         path: '/api/franchise',
-    //             requiresAuth: true,
-    //                 description: 'Create a new franchise',
-    //                     example: `curl -X POST localhost:3000/api/franchise -H 'Content-Type: application/json' -H 'Authorization: Bearer tttttt' -d '{"name": "pizzaPocket", "admins": [{"email": "f@jwt.com"}]}'`,
-    //                         response: { name: 'pizzaPocket', admins: [{ email: 'f@jwt.com', id: 4, name: 'pizza franchisee' }], id: 1 },
-    // },
-    // {
-    //     method: 'DELETE',
-    //         path: '/api/franchise/:franchiseId',
-    //             requiresAuth: true,
-    //                 description: `Delete a franchise`,
-    //                     example: `curl -X DELETE localhost:3000/api/franchise/1 -H 'Authorization: Bearer tttttt'`,
-    //                         response: { message: 'franchise deleted' },
-    // },
-
     await page.route(/\/api\/franchise.*/, async (route) => {
         const method = route.request().method();
         const url = route.request().url();
