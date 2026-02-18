@@ -20,6 +20,7 @@ export default function AdminDashboard(props: Props) {
   const filterFranchiseRef = React.useRef<HTMLInputElement>(null);
   const [userList, setUserList] = React.useState<UserList>({ users: [], more: false });
   const [userPage, setUserPage] = React.useState(0);
+  const searchUserRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     (async () => {
@@ -48,6 +49,9 @@ export default function AdminDashboard(props: Props) {
     setTimeout(() => {
       HSOverlay.close(document.getElementById('hs-jwt-modal')!);
     }, 100);
+  }
+
+  async function deleteUser(user: User) {
   }
 
   let response = <NotFound />;
@@ -141,7 +145,6 @@ export default function AdminDashboard(props: Props) {
                 </button>
               </div>
               <div className="p-4 overflow-y-scroll max-h-52">
-                <div className="my-4 text-lg text-start grid grid-cols-5 gap-2 items-center">users will appear here</div>
                 <table>
                   <thead>
                     <tr>
@@ -152,6 +155,41 @@ export default function AdminDashboard(props: Props) {
                       ))}
                     </tr>
                   </thead>
+                  {userList.users.map((user, index) => {
+                    return (
+                      <tbody key={index}>
+                        <tr className="border-neutral-500 border-t-2">
+                          <td className="text-start px-2 whitespace-nowrap text-sm font-normal text-gray-800">{user.name}</td>
+                          <td className="text-start px-2 whitespace-nowrap text-sm font-normal text-gray-800">{user.email}</td>
+                          <td className="text-start px-2 whitespace-nowrap text-sm font-normal text-gray-800">{user.roles?.join(', ')}</td>
+                          <td className="px-6 py-1 whitespace-nowrap text-end text-sm font-medium">
+                            <button type="button" className="px-2 py-1 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-1 border-orange-400 text-orange-400 hover:border-orange-800 hover:text-orange-800" onClick={() => deleteUser(user)}>
+                              <TrashIcon />
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    );
+                  })}
+                  <tfoot>
+                    <tr>
+                      <td className="px-1 py-1">
+                        <input type="text" ref={searchUserRef} name="filterUser" placeholder="Search users" className="px-2 py-1 text-sm border border-gray-300 rounded-lg" />
+                        <button type="submit" className="ml-2 px-2 py-1 text-sm font-semibold rounded-lg border border-orange-400 text-orange-400 hover:border-orange-800 hover:text-orange-800" onClick={filterFranchises}>
+                          Search
+                        </button>
+                      </td>
+                      <td colSpan={3} className="text-end text-sm font-medium">
+                        <button className="w-12 p-1 text-sm font-semibold rounded-lg border border-transparent bg-white text-grey border-grey m-1 hover:bg-orange-200 disabled:bg-neutral-300 " onClick={() => setUserPage(userPage - 1)} disabled={userPage <= 0}>
+                          «
+                        </button>
+                        <button className="w-12 p-1 text-sm font-semibold rounded-lg border border-transparent bg-white text-grey border-grey m-1 hover:bg-orange-200 disabled:bg-neutral-300" onClick={() => setUserPage(userPage + 1)} disabled={!userList.more}>
+                          »
+                        </button>
+                      </td>
+                    </tr>
+                  </tfoot>
                 </table>
               </div>
             </div>
