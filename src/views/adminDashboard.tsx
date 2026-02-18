@@ -6,6 +6,8 @@ import Button from '../components/button';
 import { pizzaService } from '../service/service';
 import { Franchise, FranchiseList, Role, Store, User } from '../service/pizzaService';
 import { TrashIcon } from '../icons';
+import { CloseIcon } from '../icons';
+import { HSOverlay } from 'preline';
 
 interface Props {
   user: User | null;
@@ -37,6 +39,12 @@ export default function AdminDashboard(props: Props) {
 
   async function filterFranchises() {
     setFranchiseList(await pizzaService.getFranchises(franchisePage, 10, `*${filterFranchiseRef.current?.value}*`));
+  }
+
+  async function listUsers() {
+    setTimeout(() => {
+      HSOverlay.close(document.getElementById('hs-jwt-modal')!);
+    }, 100);
   }
 
   let response = <NotFound />;
@@ -120,8 +128,24 @@ export default function AdminDashboard(props: Props) {
             </div>
           </div>
         </div>
+        <div role="dialog" aria-modal="true" aria-labelledby="dialog-title" id="hs-jwt-modal" className="hs-overlay hidden size-full fixed top-10 start-0 z-[80] overflow-x-hidden overflow-y-auto pointer-events-none">
+          <div className="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 sm:mx-auto min-h-[calc(100%-3.5rem)]">
+            <div className="w-full flex flex-col bg-white border shadow-sm rounded-xl pointer-events-auto   ">
+              <div className="flex justify-between items-center py-3 px-4 border-b bg-slate-200 rounded-t-xl ">
+                <h3 className="font-bold text-gray-800">List/Delete Users</h3>
+                <button type="button" className="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none" data-hs-overlay="#hs-jwt-modal">
+                  <CloseIcon className="" />
+                </button>
+              </div>
+              <div className="p-4 overflow-y-scroll max-h-52">
+                <div className="my-4 text-lg text-start grid grid-cols-5 gap-2 items-center">users will appear here</div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div>
           <Button className="w-36 text-xs sm:text-sm sm:w-64" title="Add Franchise" onPress={createFranchise} />
+          <Button title="List/Delete Users" className="w-36 text-xs sm:text-sm sm:w-64" onPress={() => HSOverlay.open(document.getElementById('hs-jwt-modal')!)} />
         </div>
       </View>
     );
