@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import NotFound from './notFound';
 import Button from '../components/button';
 import { pizzaService } from '../service/service';
-import { Franchise, FranchiseList, Role, Store, User } from '../service/pizzaService';
+import { Franchise, FranchiseList, Role, Store, User, UserList } from '../service/pizzaService';
 import { TrashIcon } from '../icons';
 import { CloseIcon } from '../icons';
 import { HSOverlay } from 'preline';
@@ -18,12 +18,15 @@ export default function AdminDashboard(props: Props) {
   const [franchiseList, setFranchiseList] = React.useState<FranchiseList>({ franchises: [], more: false });
   const [franchisePage, setFranchisePage] = React.useState(0);
   const filterFranchiseRef = React.useRef<HTMLInputElement>(null);
+  const [userList, setUserList] = React.useState<UserList>({ users: [], more: false });
+  const [userPage, setUserPage] = React.useState(0);
 
   React.useEffect(() => {
     (async () => {
       setFranchiseList(await pizzaService.getFranchises(franchisePage, 3, '*'));
+      setUserList(await pizzaService.getUsers(userPage, 3, '*'));
     })();
-  }, [props.user, franchisePage]);
+  }, [props.user, franchisePage, userPage]);
 
   function createFranchise() {
     navigate('/admin-dashboard/create-franchise');
@@ -139,6 +142,17 @@ export default function AdminDashboard(props: Props) {
               </div>
               <div className="p-4 overflow-y-scroll max-h-52">
                 <div className="my-4 text-lg text-start grid grid-cols-5 gap-2 items-center">users will appear here</div>
+                <table>
+                  <thead>
+                    <tr>
+                      {['Name', 'Email', 'Role'].map((header) => (
+                        <th key={header} scope="col" className="px-6 py-3 text-center text-xs font-medium">
+                          {header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                </table>
               </div>
             </div>
           </div>
