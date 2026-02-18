@@ -1,39 +1,79 @@
 import { test, expect } from 'playwright-test-coverage';
 import { Page } from '@playwright/test';
 
-async function initRegisterMock(page: Page) {
+async function initAuthAndUserMock(page: Page) {
+    let storedUser: any;
+    const token = 'tttttt';
+
+    // REGISTER + LOGIN
     await page.route('**/api/auth', async (route) => {
         const request = route.request();
+        const body = JSON.parse(request.postData() || '{}');
 
-        // Only handle register POST
+        // REGISTER
         if (request.method() === 'POST') {
-            const body = JSON.parse(request.postData() || '{}');
-
-            const mockResponse = {
-                user: {
-                    id: 2,
-                    name: body.name,
-                    email: body.email,
-                    roles: [{ role: 'diner' }],
-                },
-                token: 'tttttt',
+            storedUser = {
+                id: 2,
+                name: body.name,
+                email: body.email,
+                roles: [{ role: 'diner' }],
             };
 
             return route.fulfill({
                 status: 200,
                 contentType: 'application/json',
-                body: JSON.stringify(mockResponse),
+                body: JSON.stringify({
+                    user: storedUser,
+                    token,
+                }),
             });
         }
 
-        // let other requests continue
+        // LOGIN
+        if (request.method() === 'PUT') {
+            return route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    user: storedUser,
+                    token,
+                }),
+            });
+        }
+
+        return route.continue();
+    });
+
+    // UPDATE USER
+    await page.route(/\/api\/user\/\d+$/, async (route) => {
+        const request = route.request();
+
+        if (request.method() === 'PUT') {
+            const body = JSON.parse(request.postData() || '{}');
+
+            storedUser = {
+                ...storedUser,
+                name: body.name,
+                email: body.email,
+            };
+
+            return route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    user: storedUser,
+                    token,
+                }),
+            });
+        }
+
         return route.continue();
     });
 }
 
-
 test('updateUser', async ({ page }) => {
-    await initRegisterMock(page);
+    // await initRegisterMock(page);
+    await initAuthAndUserMock(page);
 
     const email = `user${Math.floor(Math.random() * 10000)}@jwt.com`;
     await page.goto('/');
@@ -53,6 +93,17 @@ test('updateUser', async ({ page }) => {
     await page.getByRole('button', { name: 'Update' }).click();
 
     await page.waitForSelector('[role="dialog"].hidden', { state: 'attached' });
+
+    await expect(page.getByRole('main')).toContainText('pizza dinerx');
+
+    await page.getByRole('link', { name: 'Logout' }).click();
+    await page.getByRole('link', { name: 'Login' }).click();
+
+    await page.getByRole('textbox', { name: 'Email address' }).fill(email);
+    await page.getByRole('textbox', { name: 'Password' }).fill('diner');
+    await page.getByRole('button', { name: 'Login' }).click();
+
+    await page.getByRole('link', { name: 'pd' }).click();
 
     await expect(page.getByRole('main')).toContainText('pizza dinerx');
 });
