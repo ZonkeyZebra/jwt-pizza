@@ -49,11 +49,12 @@ export default function AdminDashboard(props: Props) {
     // setTimeout(() => {
     //   HSOverlay.close(document.getElementById('hs-jwt-modal')!);
     // }, 100);
-    console.log("user result: " + await pizzaService.getUsers(userPage, 10, `*${searchUserRef.current?.value}*`));
     setUserList(await pizzaService.getUsers(userPage, 10, `*${searchUserRef.current?.value}*`));
   }
 
   async function deleteUser(user: User) {
+    await pizzaService.deleteUser(user);
+    setUserList(await pizzaService.getUsers(userPage, 10, `*${searchUserRef.current?.value}*`));
   }
 
   let response = <NotFound />;
