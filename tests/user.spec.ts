@@ -187,6 +187,7 @@ test('list users', async ({ page }) => {
     await page.getByRole('textbox', { name: 'Email address' }).fill(email);
     await page.getByRole('textbox', { name: 'Password' }).fill('awdmin');
     await page.getByRole('button', { name: 'Register' }).click();
-    await page.getByRole('link', { name: 'Admin' }).click(); await page.getByRole('button', { name: 'List/Delete Users' }).click();
+    await page.getByRole('link', { name: 'Admin' }).click();
+    await page.getByRole('button', { name: 'List/Delete Users' }).click();
     await expect(page.locator('#hs-jwt-modal')).toContainText('List/Delete Users');
 });

@@ -25,7 +25,7 @@ export default function AdminDashboard(props: Props) {
   React.useEffect(() => {
     (async () => {
       setFranchiseList(await pizzaService.getFranchises(franchisePage, 3, '*'));
-      setUserList(await pizzaService.getUsers(userPage, 3, '*'));
+      setUserList(await pizzaService.getUsers(userPage, 10, '*'));
     })();
   }, [props.user, franchisePage, userPage]);
 
@@ -46,9 +46,11 @@ export default function AdminDashboard(props: Props) {
   }
 
   async function listUsers() {
-    setTimeout(() => {
-      HSOverlay.close(document.getElementById('hs-jwt-modal')!);
-    }, 100);
+    // setTimeout(() => {
+    //   HSOverlay.close(document.getElementById('hs-jwt-modal')!);
+    // }, 100);
+    console.log("user result: " + await pizzaService.getUsers(userPage, 10, `*${searchUserRef.current?.value}*`));
+    setUserList(await pizzaService.getUsers(userPage, 10, `*${searchUserRef.current?.value}*`));
   }
 
   async function deleteUser(user: User) {
@@ -140,7 +142,7 @@ export default function AdminDashboard(props: Props) {
             <div className="w-full flex flex-col bg-white border shadow-sm rounded-xl pointer-events-auto   ">
               <div className="flex justify-between items-center py-3 px-4 border-b bg-slate-200 rounded-t-xl ">
                 <h3 className="font-bold text-gray-800">List/Delete Users</h3>
-                <button type="button" className="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none" data-hs-overlay="#hs-jwt-modal">
+                <button type="button" className="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none" data-hs-overlay="#hs-jwt-modal" onClick={listUsers}>
                   <CloseIcon className="" />
                 </button>
               </div>
@@ -176,7 +178,7 @@ export default function AdminDashboard(props: Props) {
                     <tr>
                       <td className="px-1 py-1">
                         <input type="text" ref={searchUserRef} name="filterUser" placeholder="Search users" className="px-2 py-1 text-sm border border-gray-300 rounded-lg" />
-                        <button type="submit" className="ml-2 px-2 py-1 text-sm font-semibold rounded-lg border border-orange-400 text-orange-400 hover:border-orange-800 hover:text-orange-800" onClick={filterFranchises}>
+                        <button type="submit" className="ml-2 px-2 py-1 text-sm font-semibold rounded-lg border border-orange-400 text-orange-400 hover:border-orange-800 hover:text-orange-800" onClick={listUsers}>
                           Search
                         </button>
                       </td>
