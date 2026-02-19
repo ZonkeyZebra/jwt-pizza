@@ -111,6 +111,40 @@ async function initForListAndDeleteUsers(page: Page) {
             });
         }
 
+        // initial users to list
+        let users = [
+            { id: 1, name: 'Alice Admin', email: 'alice@jwt.com', roles: [{ role: 'admin' }] },
+            { id: 3, name: 'Bob Baker', email: 'bob@jwt.com', roles: [{ role: 'diner' }] },
+            { id: 4, name: 'Carol Cook', email: 'carol@jwt.com', roles: [{ role: 'franchisee' }] },
+        ];
+
+        // LIST users (handles queries like ?page=..&limit=..&name=..)
+        await page.route('**/api/user*', async (route) => {
+            const request = route.request();
+            if (request.method() === 'GET') {
+                return route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({ users, more: false }),
+                });
+            }
+            return route.continue();
+        });
+
+        // DELETE user by id
+        await page.route(/\/api\/user\/\d+$/, async (route) => {
+            const request = route.request();
+            if (request.method() === 'DELETE') {
+                const m = route.request().url().match(/\/api\/user\/(\d+)$/);
+                const id = m ? Number(m[1]) : null;
+                if (id != null) {
+                    users = users.filter((u) => u.id !== id);
+                }
+                return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({}) });
+            }
+            return route.continue();
+        });
+
         return route.continue();
     });
 

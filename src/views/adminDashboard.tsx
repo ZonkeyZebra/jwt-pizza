@@ -138,43 +138,41 @@ export default function AdminDashboard(props: Props) {
             </div>
           </div>
         </div>
-        <div role="dialog" aria-modal="true" aria-labelledby="dialog-title" id="hs-jwt-modal" className="hs-overlay hidden size-full fixed top-10 start-0 z-[80] overflow-x-hidden overflow-y-auto pointer-events-none">
-          <div className="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 sm:mx-auto min-h-[calc(100%-3.5rem)]">
+        <div role="dialog" aria-modal="true" aria-labelledby="dialog-title" id="hs-jwt-modal" className="hs-overlay hidden size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y-auto pointer-events-none">
+          <div className="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-4xl sm:w-full m-2 sm:mx-auto min-h-screen">
             <div className="w-full flex flex-col bg-white border shadow-sm rounded-xl pointer-events-auto   ">
               <div className="flex justify-between items-center py-3 px-4 border-b bg-slate-200 rounded-t-xl ">
                 <h3 className="font-bold text-gray-800">List/Delete Users</h3>
-                <button type="button" className="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none" data-hs-overlay="#hs-jwt-modal" onClick={listUsers}>
+                <button type="button" className="flex justify-center items-center size-7 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none" data-hs-overlay="#hs-jwt-modal">
                   <CloseIcon className="" />
                 </button>
               </div>
-              <div className="p-4 overflow-y-scroll max-h-52">
-                <table>
+              <div className="p-4 overflow-y-scroll max-h-96">
+                <table className="w-full table-fixed">
                   <thead>
                     <tr>
                       {['Name', 'Email', 'Role'].map((header) => (
-                        <th key={header} scope="col" className="px-6 py-3 text-center text-xs font-medium">
+                        <th key={header} scope="col" className="px-4 py-3 text-left text-sm font-medium">
                           {header}
                         </th>
                       ))}
                     </tr>
                   </thead>
-                  {userList.users.map((user, index) => {
-                    return (
-                      <tbody key={index}>
-                        <tr className="border-neutral-500 border-t-2">
-                          <td className="text-start px-2 whitespace-nowrap text-sm font-normal text-gray-800">{user.name}</td>
-                          <td className="text-start px-2 whitespace-nowrap text-sm font-normal text-gray-800">{user.email}</td>
-                          <td className="text-start px-2 whitespace-nowrap text-sm font-normal text-gray-800">{user.roles?.join(', ')}</td>
-                          <td className="px-6 py-1 whitespace-nowrap text-end text-sm font-medium">
-                            <button type="button" className="px-2 py-1 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-1 border-orange-400 text-orange-400 hover:border-orange-800 hover:text-orange-800" onClick={() => deleteUser(user)}>
-                              <TrashIcon />
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      </tbody>
-                    );
-                  })}
+                  <tbody>
+                    {userList.users.map((user, index) => (
+                      <tr key={user.id ?? user.email ?? index} className="border-neutral-500 border-t-2">
+                        <td className="text-start px-4 py-2 text-sm font-normal text-gray-800">{user.name}</td>
+                        <td className="text-start px-4 py-2 text-sm font-normal text-gray-800">{user.email}</td>
+                        <td className="text-start px-4 py-2 text-sm font-normal text-gray-800">{user.roles?.map((r: any) => r.role ?? r).join(', ')}</td>
+                        <td className="px-4 py-2 text-end text-sm font-medium">
+                          <button type="button" className="px-2 py-1 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-1 border-orange-400 text-orange-400 hover:border-orange-800 hover:text-orange-800" onClick={() => deleteUser(user)}>
+                            <TrashIcon />
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
                   <tfoot>
                     <tr>
                       <td className="px-1 py-1">
