@@ -1,5 +1,6 @@
 import { test, expect } from 'playwright-test-coverage';
-import { setupUserUpdateMocks, setupUserListMocks } from './testHelpers';
+import { setupUserUpdateMocks, setupUserListMocks, setupBasicDinerMocks } from './testHelpers';
+import { mock } from 'node:test';
 
 test('updateUser', async ({ page }) => {
     const { storedUser } = await setupUserUpdateMocks(page);
@@ -38,7 +39,23 @@ test('updateUser', async ({ page }) => {
 });
 
 test('list users', async ({ page }) => {
-    const { storedUser } = await setupUserListMocks(page);
+    const mockState = await setupUserListMocks(page);
+
+    await page.goto('/');
+    await page.getByRole('link', { name: 'Register' }).click();
+    await page.getByRole('textbox', { name: 'Full name' }).fill('pizza admin');
+    await page.getByRole('textbox', { name: 'Email address' }).fill('e@email.com');
+    await page.getByRole('textbox', { name: 'Password' }).fill('awdmin');
+    await page.getByRole('button', { name: 'Register' }).click();
+
+    await page.getByRole('link', { name: 'Admin' }).click();
+    await page.getByRole('button', { name: 'List/Delete Users' }).click();
+
+    await expect(page.locator('#hs-jwt-modal')).toContainText('Alice Admin');
+});
+
+test('delete user', async ({ page }) => {
+    const mockState = await setupUserListMocks(page);
     const email = `user${Math.floor(Math.random() * 10000)}@jwt.com`;
     await page.goto('/');
     await page.getByRole('link', { name: 'Register' }).click();
@@ -48,5 +65,5 @@ test('list users', async ({ page }) => {
     await page.getByRole('button', { name: 'Register' }).click();
     await page.getByRole('link', { name: 'Admin' }).click();
     await page.getByRole('button', { name: 'List/Delete Users' }).click();
-    await expect(page.locator('#hs-jwt-modal')).toContainText('List/Delete Users');
+    await expect(page.locator('#hs-jwt-modal')).toContainText('Alice Admin');
 });

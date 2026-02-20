@@ -198,7 +198,10 @@ export default function AdminDashboard(props: Props) {
         </div>
         <div>
           <Button className="w-36 text-xs sm:text-sm sm:w-64" title="Add Franchise" onPress={createFranchise} />
-          <Button title="List/Delete Users" className="w-36 text-xs sm:text-sm sm:w-64" onPress={() => HSOverlay.open(document.getElementById('hs-jwt-modal')!)} />
+          <Button title="List/Delete Users" className="w-36 text-xs sm:text-sm sm:w-64" onPress={async () => {
+            setUserList(await pizzaService.getUsers(userPage, 10, '*'));
+            HSOverlay.open(document.getElementById('hs-jwt-modal')!);
+          }} />
         </div>
       </View>
     );

@@ -469,91 +469,89 @@ export async function setupUserUpdateMocks(page: Page): Promise<{ storedUser: an
 /**
  * Setup user list/delete mocks for admin tests.
  */
-export async function setupUserListMocks(page: Page): Promise<{ storedUser: any }> {
-    const state = { storedUser: undefined as any };
+export async function setupUserListMocks(page: Page): Promise<MockState> {
+    const mockState: MockState = {
+        loggedInUser: undefined,
+    };
+
     const token = 'tttttt';
 
-    // Note: users array is scoped per test call
     const users = [
         { id: 1, name: 'Alice Admin', email: 'alice@jwt.com', roles: [{ role: 'admin' }] },
         { id: 3, name: 'Bob Baker', email: 'bob@jwt.com', roles: [{ role: 'diner' }] },
         { id: 4, name: 'Carol Cook', email: 'carol@jwt.com', roles: [{ role: 'franchisee' }] },
     ];
 
-    await page.unroute('**/*');
+    /* ---------------- AUTH ---------------- */
 
     await page.route('**/api/auth', async (route) => {
         const request = route.request();
-        const body = JSON.parse(request.postData() || '{}');
 
-        // Register
-        if (request.method() === 'POST') {
-            state.storedUser = {
-                id: 2,
-                name: body.name,
-                email: body.email,
-                roles: [{ role: 'admin' }],
-            };
+        // Always log in as admin for this test
+        mockState.loggedInUser = {
+            id: '1',
+            name: 'Alice Admin',
+            email: 'alice@jwt.com',
+            roles: [{ role: Role.Admin }],
+        };
 
-            return route.fulfill({
-                status: 200,
-                contentType: 'application/json',
-                body: JSON.stringify({
-                    user: state.storedUser,
-                    token,
-                }),
-            });
-        }
-
-        // Login
-        if (request.method() === 'PUT') {
-            return route.fulfill({
-                status: 200,
-                contentType: 'application/json',
-                body: JSON.stringify({
-                    user: state.storedUser,
-                    token,
-                }),
-            });
-        }
-
-        return route.abort();
-    });
-
-    await page.route('**/api/user/me', async (route) => {
-        if (route.request().method() !== 'GET') {
-            return route.abort();
-        }
-        await route.fulfill({
+        return route.fulfill({
             status: 200,
             contentType: 'application/json',
-            body: JSON.stringify(state.storedUser),
+            body: JSON.stringify({
+                user: mockState.loggedInUser,
+                token,
+            }),
         });
     });
 
-    // List users
-    await page.route('**/api/user*', async (route) => {
-        if (route.request().method() === 'GET') {
+    /* ---------------- CURRENT USER ---------------- */
+
+    await page.route('**/api/user/me', async (route) => {
+        if (!mockState.loggedInUser) {
+            return route.fulfill({
+                status: 401,
+                contentType: 'application/json',
+                body: JSON.stringify({ message: 'unauthorized' }),
+            });
+        }
+
+        return route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify(mockState.loggedInUser),
+        });
+    });
+
+    /* ---------------- USERS (LIST / DELETE / UPDATE) ---------------- */
+
+    await page.route('**/api/user**', async (route) => {
+        const request = route.request();
+        const method = request.method();
+        const url = request.url();
+
+        // LIST USERS
+        if (method === 'GET' && url.includes('/api/user?')) {
             return route.fulfill({
                 status: 200,
                 contentType: 'application/json',
-                body: JSON.stringify({ users, more: false }),
+                body: JSON.stringify({
+                    users,
+                    more: false,
+                }),
             });
         }
-        return route.abort();
-    });
 
-    // Delete user
-    await page.route(/\/api\/user\/\d+$/, async (route) => {
-        const request = route.request();
+        // DELETE USER
+        if (method === 'DELETE') {
+            const match = url.match(/\/api\/user\/(\d+)$/);
+            const id = match ? Number(match[1]) : null;
 
-        if (request.method() === 'DELETE') {
-            const m = request.url().match(/\/api\/user\/(\d+)$/);
-            const id = m ? Number(m[1]) : null;
-            if (id != null) {
+            if (id !== null) {
                 const index = users.findIndex((u) => u.id === id);
-                if (index > -1) users.splice(index, 1);
+                if (index !== -1) users.splice(index, 1);
             }
+
             return route.fulfill({
                 status: 200,
                 contentType: 'application/json',
@@ -561,26 +559,29 @@ export async function setupUserListMocks(page: Page): Promise<{ storedUser: any 
             });
         }
 
-        if (request.method() === 'PUT') {
+        // UPDATE USER
+        if (method === 'PUT') {
             const body = JSON.parse(request.postData() || '{}');
-            state.storedUser = {
-                ...state.storedUser,
-                name: body.name,
-                email: body.email,
+
+            mockState.loggedInUser = {
+                ...mockState.loggedInUser,
+                name: body.name ?? mockState.loggedInUser?.name,
+                email: body.email ?? mockState.loggedInUser?.email,
             };
 
             return route.fulfill({
                 status: 200,
                 contentType: 'application/json',
                 body: JSON.stringify({
-                    user: state.storedUser,
+                    user: mockState.loggedInUser,
                     token,
                 }),
             });
         }
 
+        // Everything else → abort (never hit real backend)
         return route.abort();
     });
 
-    return state;
+    return mockState;
 }
