@@ -66,4 +66,8 @@ test('delete user', async ({ page }) => {
     await page.getByRole('link', { name: 'Admin' }).click();
     await page.getByRole('button', { name: 'List/Delete Users' }).click();
     await expect(page.locator('#hs-jwt-modal')).toContainText('Alice Admin');
+    await expect(page.locator('tbody')).toContainText('Bob Baker');
+    await expect(page.locator('tbody')).toContainText('Carol Cook');
+    await page.getByRole('row', { name: 'Bob Baker bob@jwt.com diner' }).getByRole('button').click();
+    await expect(page.locator('tbody')).not.toContainText('Bob Baker');
 });
