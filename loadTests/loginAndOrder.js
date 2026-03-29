@@ -1,4 +1,4 @@
-import { sleep, group, check } from 'k6'
+import { sleep, group, check, fail } from 'k6'
 import http from 'k6/http'
 import jsonpath from 'https://jslib.k6.io/jsonpath/1.0.2/index.js'
 
@@ -54,9 +54,12 @@ export function login_and_Purchase() {
 
         vars['token'] = jsonpath.query(response.json(), '$.token')[0]
 
-        console.log("Login: " + response.body);
         sleep(3)
         check(response, { 'status equals 200': (response) => response.status.toString() === '200' });
+        if (!check(response, { 'status equals 200': response => response.status.toString() === '200' })) {
+            console.log(response.body);
+            fail('Login was *not* 200');
+        }
 
         // Get Menu
         response = http.get('https://pizza-service.jwt-pizza.click/api/order/menu', {
@@ -78,8 +81,11 @@ export function login_and_Purchase() {
             },
         })
 
-        console.log("Get Menu: " + response.body);
         check(response, { 'status equals 200': (response) => response.status.toString() === '200' });
+        if (!check(response, { 'status equals 200': response => response.status.toString() === '200' })) {
+            console.log(response.body);
+            fail('Get Menu was *not* 200');
+        }
 
         // Get Franchise
         response = http.get(
@@ -104,8 +110,11 @@ export function login_and_Purchase() {
             }
         )
 
-        console.log("Get Franchise: " + response.body);
         check(response, { 'status equals 200': (response) => response.status.toString() === '200' });
+        if (!check(response, { 'status equals 200': response => response.status.toString() === '200' })) {
+            console.log(response.body);
+            fail('Get Franchise was *not* 200');
+        }
 
         response = http.get('https://pizza.jwt-pizza.click/x', {
             headers: {
@@ -123,9 +132,12 @@ export function login_and_Purchase() {
             },
         })
 
-        console.log("Get Franchise: " + response.body);
         sleep(1)
         check(response, { 'status equals 200': (response) => response.status.toString() === '200' });
+        if (!check(response, { 'status equals 200': response => response.status.toString() === '200' })) {
+            console.log(response.body);
+            fail('Get Franchise was *not* 200');
+        }
 
         // Get User
         response = http.get('https://pizza-service.jwt-pizza.click/api/user/me', {
@@ -147,9 +159,12 @@ export function login_and_Purchase() {
             },
         })
 
-        console.log("Get User: " + response.body);
         sleep(2)
         check(response, { 'status equals 200': (response) => response.status.toString() === '200' });
+        if (!check(response, { 'status equals 200': response => response.status.toString() === '200' })) {
+            console.log(response.body);
+            fail('Get User was *not* 200');
+        }
 
         // Order Pizzas
         response = http.post(
@@ -176,9 +191,12 @@ export function login_and_Purchase() {
         )
 
         vars['jwt'] = jsonpath.query(response.json(), '$.jwt')[0]
-        console.log("Order Pizzas: " + response.body);
         sleep(2.4)
         check(response, { 'status equals 200': (response) => response.status.toString() === '200' });
+        if (!check(response, { 'status equals 200': response => response.status.toString() === '200' })) {
+            console.log(response.body);
+            fail('Order Pizzas was *not* 200');
+        }
 
         // Verify Pizza
         response = http.post(
@@ -205,8 +223,11 @@ export function login_and_Purchase() {
             }
         )
 
-        console.log("Verify Pizza: " + response.body);
         sleep(2)
         check(response, { 'status equals 200': (response) => response.status.toString() === '200' });
+        if (!check(response, { 'status equals 200': response => response.status.toString() === '200' })) {
+            console.log(response.body);
+            fail('Verify Pizza was *not* 200');
+        }
     })
 }
