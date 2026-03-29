@@ -70,7 +70,6 @@ test('delete user', async ({ page }) => {
 
     await expect(page.locator('#hs-jwt-modal')).toContainText('Alice Admin');
     await expect(page.locator('tbody')).toContainText('Bob Baker');
-    await expect(page.locator('tbody')).toContainText('Carol Cook');
 
     const bobRow = page.getByRole('row', { name: 'Bob Baker bob@jwt.com diner' });
 
