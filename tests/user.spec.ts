@@ -57,17 +57,25 @@ test('list users', async ({ page }) => {
 test('delete user', async ({ page }) => {
     const mockState = await setupUserListMocks(page);
     const email = `user${Math.floor(Math.random() * 10000)}@jwt.com`;
+
     await page.goto('/');
     await page.getByRole('link', { name: 'Register' }).click();
     await page.getByRole('textbox', { name: 'Full name' }).fill('pizza admin');
     await page.getByRole('textbox', { name: 'Email address' }).fill(email);
     await page.getByRole('textbox', { name: 'Password' }).fill('awdmin');
     await page.getByRole('button', { name: 'Register' }).click();
+
     await page.getByRole('link', { name: 'Admin' }).click();
     await page.getByRole('button', { name: 'List/Delete Users' }).click();
+
     await expect(page.locator('#hs-jwt-modal')).toContainText('Alice Admin');
     await expect(page.locator('tbody')).toContainText('Bob Baker');
     await expect(page.locator('tbody')).toContainText('Carol Cook');
-    await page.getByRole('row', { name: 'Bob Baker bob@jwt.com diner' }).getByRole('button').click();
-    await expect(page.locator('tbody')).not.toContainText('Bob Baker');
+
+    const bobRow = page.getByRole('row', { name: 'Bob Baker bob@jwt.com diner' });
+
+    await bobRow.getByRole('button').click();
+
+    // Wait for Bob's row to disappear
+    await expect(bobRow).toBeHidden();
 });
