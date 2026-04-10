@@ -11,7 +11,7 @@ Cecily Black and Micaela Madariaga
 | Classification | Identification and Authentication Failures       |
 | Severity       | 2                                                |
 | Description    | I was able to do a brute force attack with several passwords and find one that worked.                                                             |
-| Images         | [image](./images/Self_BurpSuitePasswordTest.png) |
+| Images         | ![image](./images/Self_BurpSuitePasswordTest.png) |
 | Corrections    | Get users to have better passwords               |
 
 #### Attack 2
@@ -22,7 +22,7 @@ Cecily Black and Micaela Madariaga
 | Classification | Broken Access Control                                            |
 | Severity       | 0                                                                |
 | Description    | I tried to see franchises without being signed in as franchisee. |
-| Images         | [img](./images/Self_BrokenAccessControl.png)                     |
+| Images         | ![img](./images/Self_BrokenAccessControl.png)                     |
 | Corrections    | Attack did not work                                              |
 
 #### Attack 3
@@ -33,7 +33,7 @@ Cecily Black and Micaela Madariaga
 | Classification | Insecure Design                                             |
 | Severity       | 2                                                           |
 | Description    | Was able to order 5 pizzas for free after altering request. |
-| Images         | [img](./images/Self_InsecureDesign_Price0.png)              |
+| Images         | ![img](./images/Self_InsecureDesign_Price0.png)              |
 | Corrections    | Have extra checks to ensure prices                          |
 
 #### Attack 4
@@ -44,7 +44,7 @@ Cecily Black and Micaela Madariaga
 | Classification | Cryptographic Failures                         |
 | Severity       | 0                                              |
 | Description    | I tried modifying the JWT token. Did not accept the modified token. Though token could potentially contain information a person could exploit.                               |
-| Images         | [img](./images/Self_CryptographicFailures.png) |
+| Images         | ![img](./images/Self_CryptographicFailures.png) |
 | Corrections    | Attack did not succeed.                        |
 
 #### Attack 5
@@ -55,7 +55,7 @@ Cecily Black and Micaela Madariaga
 | Classification | SSRF (Server-Side Request Forgery)                    |
 | Severity       | 1                                                     |
 | Description    | I was able to interrupt calls to images from website. |
-| Images         | [img](./images/Self_SSRF.png)                         |
+| Images         | ![img](./images/Self_SSRF.png)                         |
 | Corrections    | Hide calls better, keep images internal               |
 
 ### Micaela
